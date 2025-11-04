@@ -7,7 +7,8 @@ import crypto from "crypto"
 
 const Schema = mongoose.Schema
 
-export const Usermodel = new Schema({
+const Usermodel = new Schema({
+    _id : {type : String, default : ""},
     name : {type : String, required : true},
     email : {type : String, required : true, unique : true},
     password : {type : String, required : true},
@@ -85,3 +86,5 @@ Usermodel.methods.generateTemporarytoken = async function() {
 
   return {unhashedTempToken, Hashedtemptoken, TemptokenExpiry}
 }
+
+export const UserM = mongoose.model("User", Usermodel)
