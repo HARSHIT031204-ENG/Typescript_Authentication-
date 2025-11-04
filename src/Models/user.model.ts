@@ -7,7 +7,6 @@ import crypto from "crypto"
 
 const Schema = mongoose.Schema
 
-
 export const Usermodel = new Schema({
     name : {type : String, required : true},
     email : {type : String, required : true, unique : true},
