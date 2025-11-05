@@ -1,14 +1,34 @@
-import mongoose, { type UpdateQuery } from "mongoose";
+import mongoose from "mongoose";
 import bcrypt from "bcrypt"
 import jwt, { type SignOptions } from "jsonwebtoken"
 // import JwtPayload  from "../Types/jwtpayload.js";
 import crypto from "crypto"
 
+export interface Iuser extends mongoose.Document {
+  _id : string,
+  name : string,
+  email : string,
+  password : string,
+  avatar? : string,
+  forgotPasswordToken? : string,
+  forgotPasswordexpiry? : Date,
+  emailverificationToken? : string,
+  emailverificationexpiry? : Date,
+  isEmailverified? : boolean,
+  refreshtoken? : string,
+  ispasswordCorrect() : boolean,
+  generateRefreshtoken() : string,
+  generateAccestoken() : string,
+  generateTemporarytoken() : {
+    unhashedTempToken? : string,
+    Hashedtemptoken? : string,
+    TemptokenExpiry? : string
+  }
+}
 
 const Schema = mongoose.Schema
 
-const Usermodel = new Schema({
-    _id : {type : String, default : ""},
+const Usermodel = new Schema<Iuser>({
     name : {type : String, required : true},
     email : {type : String, required : true, unique : true},
     password : {type : String, required : true},
@@ -87,4 +107,4 @@ Usermodel.methods.generateTemporarytoken = async function() {
   return {unhashedTempToken, Hashedtemptoken, TemptokenExpiry}
 }
 
-export const UserM = mongoose.model("User", Usermodel)
+export const UserM = mongoose.model<Iuser>("User", Usermodel)
