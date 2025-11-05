@@ -1,11 +1,11 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
+import { RegisterUser } from "./Controllers/Auth.Controller.js"
+dotenv.config()
 
-dotenv.config({
-    path: ".../.env"
-})
 const app = express()
+
 
 app.use(express.json({limit : "16kb"}))
 app.use(express.urlencoded({extended : true, limit : "16kb"}))
@@ -17,4 +17,6 @@ app.use(cors ({
 }))
 
 
+
+app.use("/api/v1", RegisterUser)
 export default app
