@@ -1,7 +1,7 @@
 import { UserM } from "../Models/user.model.js";
-import { AsyncHandler } from "../Middlewares/Asynchandler.js";
-import { ApiError } from "../Middlewares/Apierror.js";
-import { ApiResponse } from "../Middlewares/Apiresponse.js";
+import { AsyncHandler } from "../Utils/Asynchandler.js";
+import { ApiError } from "../Utils/Apierror.js";
+import { ApiResponse } from "../Utils/Apiresponse.js";
 import type { Request, Response } from "express";
 
 export const RegisterUser = AsyncHandler(async (req: Request, res: Response) => {
