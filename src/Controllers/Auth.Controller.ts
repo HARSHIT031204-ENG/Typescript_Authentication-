@@ -24,6 +24,12 @@ export const RegisterUser = AsyncHandler(async (req: Request, res: Response) => 
     "-password -refreshtoken"
    )
 
+   const RefreshToken = user.generateRefreshtoken()
+
+   user.refreshtoken = RefreshToken
+
+   await user.save({validateBeforeSave : true})
+
    return res
     .status(200)
     .json(
@@ -31,22 +37,22 @@ export const RegisterUser = AsyncHandler(async (req: Request, res: Response) => 
     );
 })
 
-export const VerifyEmail = AsyncHandler(async(req: Request, res: Response) => {
-    const {email} = req.body
-    const user = await UserM.find({email})
+// export const VerifyEmail = AsyncHandler(async(req: Request, res: Response) => {
+//     const {email} = req.body
+//     const user = await UserM.find({email})
 
-    if(user?.email != email) {
-        throw new ApiError(401, "Unauthorized user email not matched!")
-    }
+//     if(user?.email != email) {
+//         throw new ApiError(401, "Unauthorized user email not matched!")
+//     }
 
-    const {unhashedTempToken, Hashedtemptoken, TemptokenExpiry} = user.generateTemporarytoken()
-
-
-
-    return res.statusCode(200)
-              .json(
-                new ApiResponse(200, "email verified success!")
-            )
+//     const {unhashedTempToken, Hashedtemptoken, TemptokenExpiry} = user.generateTemporarytoken()
 
 
-})
+
+//     return res.statusCode(200)
+//               .json(
+//                 new ApiResponse(200, "email verified success!")
+//             )
+
+
+// })
