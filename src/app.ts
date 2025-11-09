@@ -1,12 +1,13 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
-import { RegisterUser } from "./Controllers/Auth.Controller.js"
+import cookieParser from "cookie-parser"
+import Allroutes from "./Routes/Auth.Route.js"
 dotenv.config()
 
 const app = express()
 
-
+app.use(cookieParser())
 app.use(express.json({limit : "16kb"}))
 app.use(express.urlencoded({extended : true, limit : "16kb"}))
 
@@ -18,5 +19,5 @@ app.use(cors ({
 
 
 
-app.use("/api/v1", RegisterUser)
+app.use("/api/v1", Allroutes)
 export default app
