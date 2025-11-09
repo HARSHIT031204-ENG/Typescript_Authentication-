@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt"
 import jwt, { type SignOptions } from "jsonwebtoken"
-// import JwtPayload  from "../Types/jwtpayload.js";
 import crypto from "crypto"
 
 export interface Iuser extends mongoose.Document {
