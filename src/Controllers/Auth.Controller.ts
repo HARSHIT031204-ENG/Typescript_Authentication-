@@ -3,9 +3,17 @@ import { AsyncHandler } from "../Utils/Asynchandler.js";
 import { ApiError } from "../Utils/Apierror.js";
 import { ApiResponse } from "../Utils/Apiresponse.js";
 import type { Request, Response } from "express";
+import { SendMail, EmailverificationMailgen, ForgotPasswordMailgen } from "../Utils/Mail.js";
+
+
+const GenerateOtp = function() {
+    const otpnum = Math.floor(Math.random()*10)+100000
+    return otpnum
+}
+
 
 export const RegisterUser = AsyncHandler(async (req: Request, res: Response) => {
-    const {name, email, password} = req.body
+    const {name, email, password} = req.validation
 
     if(!name || !email || !password){
         throw new ApiError(422, "All Fields required!", [])
@@ -17,6 +25,21 @@ export const RegisterUser = AsyncHandler(async (req: Request, res: Response) => 
         throw new ApiError(409, "User's occurence already!", [])
     }
 
+    const otp: number = GenerateOtp()
+
+    await SendMail ({
+        email: email,
+        name: name,
+        mailgenContent: EmailverificationMailgen(name, otp),
+        subject: "",
+        outro: ""
+    })
+    console.log(otp);
+    
+    const {reqotp} = req.body
+    if(otp != reqotp){
+        throw new ApiError(400, "invalid otp enterd !")
+    }
 
    const user = await UserM.create({ name, email, password })
 
@@ -24,11 +47,6 @@ export const RegisterUser = AsyncHandler(async (req: Request, res: Response) => 
     "-password -refreshtoken"
    )
 
-   const RefreshToken = user.generateRefreshtoken()
-
-   user.refreshtoken = RefreshToken
-
-   await user.save({validateBeforeSave : true})
 
    return res
     .status(200)
