@@ -9,12 +9,12 @@ interface I_options {
         body: {
             name: any;
             intro: string;
-            content: {
+            action: {
                 instructions: string;
                 button: {
                     color: string;
                     text: string;
-                    link?: any;
+                    link: any;
                     
                 };
             };
@@ -62,18 +62,18 @@ const SendMail = async (options: I_options) => {
     }
 };
 
-const EmailverificationMailgen = (username: string, emailotp: number) => {
+const EmailverificationMailgen = (username: string, link : string) => {
     return {
         body: {
             name: username,
-            intro: `Welcome to Our Application! We're very excited to have you on board. ${emailotp}`,
-            content: {
+            intro: `Welcome to Our Application! We're very excited to have you on board.`,
+            action: {
                 instructions:
                     "To verify your mail please enter given otp on site!",
                 button: {
                     color: "#22BC66",
-                    text: `verify your email ${emailotp}`,
-                    // link: emailotp,
+                    text: `verify your email`,
+                    link: link,
                 },
             },
             outro: "Need help, or have questions? Just reply to this email, we'd love to help.",
