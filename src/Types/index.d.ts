@@ -4,7 +4,8 @@ import type { Usre_ValidationSchema } from "../../Middlewares/Register.validatio
 declare global {
     namespace Express{
         interface Request {
-            validation? : z.infer<typeof Usre_ValidationSchema>
+            validation? : z.infer<typeof Usre_ValidationSchema>,
+            user? : z.infer<typeof Usre_ValidationSchema>
         }
     }
 }
