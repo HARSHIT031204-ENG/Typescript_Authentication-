@@ -102,7 +102,8 @@ Usermodel.methods.generateTemporarytoken = async function() {
   let unhashedTempToken = crypto.randomBytes(10).toString("hex")
   let Hashedtemptoken = crypto.createHash("sha256").update(unhashedTempToken).digest("hex")
   let TemptokenExpiry = Date.now()+ 20*60*1000
-
+  // console.log(unhashedTempToken, Hashedtemptoken, TemptokenExpiry);
+  
   return {unhashedTempToken, Hashedtemptoken, TemptokenExpiry}
 }
 
