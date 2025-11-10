@@ -68,10 +68,10 @@ export const RegisterValidation = async (
     res: Response,
     next: NextFunction
 ) => {
-    console.log("Helli I am in Validation");
+    // console.log("Helli I am in Validation");
 
     const { name, email, password } = req.body;
-    console.log(name, email, password);
+    // console.log(name, email, password);
 
     const result = Usre_ValidationSchema.safeParse({ name, email, password });
 
@@ -87,3 +87,16 @@ export const RegisterValidation = async (
     req.validation = result.data;
     next();
 };
+
+
+export const emailvalidation = async(req : Request<{}, {}, {email : string}>, res : Response, next : NextFunction) => {
+    const {email} = req.body
+
+    const result = Usre_ValidationSchema.safeParse({email})
+
+    if(!result.success){
+        throw new ApiError(400, "incoming field is empty")
+    }
+
+    req.user = result.data
+}
