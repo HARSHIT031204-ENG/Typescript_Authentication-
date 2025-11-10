@@ -10,9 +10,9 @@ export interface Iuser extends mongoose.Document {
   password : string,
   avatar? : string,
   forgotPasswordToken? : string,
-  forgotPasswordexpiry? : Date,
+  forgotPasswordexpiry? : Date | undefined,
   emailverificationToken? : string,
-  emailverificationexpiry? : Date,
+  emailverificationexpiry? : Date | undefined,
   isEmailverified? : boolean,
   refreshtoken? : string,
   ispasswordCorrect() : boolean,
@@ -21,7 +21,7 @@ export interface Iuser extends mongoose.Document {
   generateTemporarytoken() : {
     unhashedTempToken? : string,
     Hashedtemptoken? : string,
-    TemptokenExpiry? : string
+    TemptokenExpiry? : Date | undefined
   }
 }
 
@@ -101,8 +101,7 @@ Usermodel.methods.generateAccestoken = async function () {
 Usermodel.methods.generateTemporarytoken = async function() {
   let unhashedTempToken = crypto.randomBytes(10).toString("hex")
   let Hashedtemptoken = crypto.createHash("sha256").update(unhashedTempToken).digest("hex")
-  let TemptokenExpiry = Date.now()+ 20*60*1000
-  // console.log(unhashedTempToken, Hashedtemptoken, TemptokenExpiry);
+  let TemptokenExpiry = Date.now() + (20*60*1000)
   
   return {unhashedTempToken, Hashedtemptoken, TemptokenExpiry}
 }
