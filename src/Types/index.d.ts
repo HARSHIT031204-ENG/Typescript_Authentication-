@@ -1,4 +1,3 @@
-import "express"
 import * as zod from "zod"
 import type { Usre_ValidationSchema } from "../../Middlewares/Register.validation.ts"
 declare global {
@@ -9,3 +8,15 @@ declare global {
         }
     }
 }
+
+// import * as express from 'express';
+// import { JwtPayload } from "jsonwebtoken";
+
+
+// declare global {
+//     namespace Express {
+//     interface Request {
+//         cookies?:  Record<string, string>
+//     }
+//     }
+// }
