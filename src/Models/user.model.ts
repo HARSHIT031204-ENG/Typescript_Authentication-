@@ -2,25 +2,26 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt"
 import jwt, { type SignOptions } from "jsonwebtoken"
 import crypto from "crypto"
+import type { Types, UpdateQuery } from "mongoose";
 
 export interface Iuser extends mongoose.Document {
-  _id : string,
+  _id : Types.ObjectId,
   name : string,
   email : string,
   password : string,
   avatar? : string,
-  forgotPasswordToken? : string,
+  forgotPasswordToken? : string | undefined,
   forgotPasswordexpiry? : Date | undefined,
-  emailverificationToken? : string,
+  emailverificationToken? : string | undefined,
   emailverificationexpiry? : Date | undefined,
   isEmailverified? : boolean,
   refreshtoken? : string,
-  ispasswordCorrect() : boolean,
+  ispasswordCorrect(password : string) : boolean,
   generateRefreshtoken() : string,
   generateAccestoken() : string,
   generateTemporarytoken() : {
-    unhashedTempToken? : string,
-    Hashedtemptoken? : string,
+    unhashedTempToken? : string | undefined,
+    Hashedtemptoken? : string | undefined,
     TemptokenExpiry? : Date | undefined
   }
 }
@@ -70,6 +71,14 @@ Usermodel.pre("save", async function (next) {
    if(!this.isModified("password") ) return next()
    const hashedpassword = await bcrypt.hash(this.password, 10)
    this.password = hashedpassword
+});
+
+Usermodel.pre("findOneAndUpdate", async function (next) {
+  const update = this.getUpdate() as UpdateQuery<any>;
+    if(update && update.password) {
+        this.setUpdate({ ...update, password: await bcrypt.hash(update.password, 10) } )
+    }
+    next();
 })
 
 Usermodel.methods.ispasswordCorrect = async function(password : string) {
