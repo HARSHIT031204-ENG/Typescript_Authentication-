@@ -86,16 +86,3 @@ export const RegisterValidation = async (
     req.validation = result.data;
     next();
 };
-
-
-// export const emailvalidation = async(req : Request<{}, {}, {email : string}>, res : Response, next : NextFunction) => {
-//     const {email} = req.body
-
-//     const result = Usre_ValidationSchema.safeParse({email})
-
-//     if(!result.success){
-//         throw new ApiError(400, "incoming field is empty")
-//     }
-
-//     req.user = result.data
-// }
