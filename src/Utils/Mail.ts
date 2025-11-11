@@ -2,8 +2,8 @@ import * as nodemailer from "nodemailer";
 import Mailgen from "mailgen";
 
 interface I_options {
-    email: string;
-    name: string;
+    email: string | undefined;
+    name: string | undefined;
     subject: string;
     mailgenContent: {
         body: {
