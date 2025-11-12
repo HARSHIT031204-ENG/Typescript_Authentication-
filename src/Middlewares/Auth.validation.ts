@@ -20,7 +20,7 @@ export const Authvalidation = (req : Request, res : Response, next : NextFunctio
 
         const user = UserM.findById(decodeRefreshtoken._id).select(
             "-password -refreshtoken"
-        )
+        ).exec()
 
         req.user = user
         next() 
