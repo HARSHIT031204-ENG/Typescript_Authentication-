@@ -12,8 +12,8 @@ router.route("/logout").get(Authvalidation, LogoutUser)
 router.route("/GetCurrentUser").get(Authvalidation, GetcurrentUser)
 router.route("/CurrentpasswordChange").post(Authvalidation, CurrentPasswordChange)
 router.route("/ForgotPassword").get(ForgotPassword)
-router.route("/ResetPaswword").post(ResetPassword)
-router.route("/EmailUpdate").post(EmailUpdate)
-router.route("/FinallyEmailUpdate").post(FinallychangeEmail)
+router.route("/ResetPaswword/:resetlinktoken").post(ResetPassword)
+router.route("/EmailUpdate").post(Authvalidation, EmailUpdate)
+router.route("/FinallyEmailUpdate").post(Authvalidation, FinallychangeEmail)
 
 export default router
