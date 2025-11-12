@@ -314,32 +314,24 @@ export const ResetPassword = AsyncHandler(async(req : Request, res : Response) =
 })
 
 export const EmailUpdate = AsyncHandler(async(req : Request, res : Response) => {
-    const {oldemail, password} = req.body
-    const {email, _id} = await req.user
-    // console.log(email, oldemail);
-    
-    if(oldemail != email){
-        throw new ApiError(400, "Email not matched!")
-    }
-    const user = await UserM.findById(_id)
-    if(!user){
-        throw new ApiError(400, "user not found ")
-    }
-    const ispassword = await user.ispasswordCorrect(password)
-
-    if(!ispassword){
-        throw new ApiError(400, "password not matched!")
-    }
-
+    const { oldEmail, password } = req.body
     const emailchangeotp = GenerateOtp()
-
-    user.emailotp = emailchangeotp
-
-    await user.save({validateBeforeSave : false})
+    const user = await UserM.findOneAndUpdate(
+        {
+            email: oldEmail
+        },
+        {
+            emailotp: emailchangeotp
+        }
+    )
+    if(!user) throw new ApiError(400, "user not found ")
+    
+    const ispassword = user.ispasswordCorrect(password)
+    if(!ispassword) throw new ApiError(400, "password not matched!")
 
     await SendMail(
         {
-            email: email,
+            email: oldEmail,
             name: req.user?.name,
             mailgenContent: EmailverificationMailgen(
                 req.user?.name,
