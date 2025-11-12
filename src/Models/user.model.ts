@@ -16,6 +16,7 @@ export interface Iuser extends mongoose.Document {
   emailverificationexpiry? : Date | undefined,
   isEmailverified? : boolean,
   refreshtoken? : string,
+  emailotp? : string | number,
   ispasswordCorrect(password : string) : boolean,
   generateRefreshtoken() : string,
   generateAccestoken() : string,
@@ -60,6 +61,9 @@ const Usermodel = new Schema<Iuser>({
     },
     refreshtoken: {
       type: String,
+    },
+    emailotp : {
+      type : Number || String,
     },
 },
   {
