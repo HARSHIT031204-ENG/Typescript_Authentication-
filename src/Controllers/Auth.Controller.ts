@@ -11,10 +11,6 @@ import {
 import crypto from "crypto";
 import type { Types } from "mongoose";
 
-// const GenerateOtp = function() {
-//     const otpnum = Math.floor(Math.random()*10)+100000
-//     return otpnum
-// }
 
 const Generate_Access_Refresh_Token = async (
     userId: string | Types.ObjectId
@@ -303,6 +299,57 @@ export const ResetPassword = AsyncHandler(async(req : Request, res : Response) =
 })
 
 export const EmailUpdate = AsyncHandler(async(req : Request, res : Response) => {
-    const {email} = req.user
+    const {email, password} = req.user
+
+    if(email != req.user.email){
+        throw new ApiError(400, "Email not matched!")
+    }
+
+    const ispassword = await req.user.ispasswordCorrect(password)
+    if(!ispassword){
+        throw new ApiError(400, "password not matched!")
+    }
+
+    const emailchangeotp = GenerateOtp()
+
+    req.user.emailotp = emailchangeotp
+
+    await req.user.save({validateBefore : false})
+
+    await SendMail(
+        {
+            email: email,
+            name: req.user?.name,
+            mailgenContent: EmailverificationMailgen(
+                req.user?.name,
+                `Otp for change email ${emailchangeotp}`
+            ),
+            subject: "Verify your email ",
+            outro: "click on given button ",
+        }
+    )
     
 })
+
+export const FinallychangeEmail = AsyncHandler(async(req : Request, res : Response) => {
+    const {enteredotp} = req.body
+    const {email} = req.user
+
+    if(enteredotp != req.user.emailotp){
+        throw new ApiError(400, "given otp not matched!")
+    }
+
+    const { newemail } = req.body
+
+    req.user.email = newemail
+
+    res.status(200).json(
+        new ApiResponse(200, "email changed successfully!", {data: req.user})
+    )
+
+})
+
+const GenerateOtp = function() {
+    const otpnum = Math.floor(Math.random()*10)+100000
+    return otpnum
+}
