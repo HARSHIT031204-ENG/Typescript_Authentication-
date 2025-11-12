@@ -10,6 +10,8 @@ import {
 } from "../Utils/Mail.js";
 import crypto from "crypto";
 import type { Types } from "mongoose";
+import { log } from "console";
+import { userInfo } from "os";
 
 
 const Generate_Access_Refresh_Token = async (
@@ -173,7 +175,7 @@ export const LoginUser = AsyncHandler(async (req: Request, res: Response) => {
 });
 
 export const LogoutUser = AsyncHandler(async (req : Request, res : Response) => {
-    const { _id } = req.cookies
+    const { _id } = await req.user
 
     const user = await UserM.findByIdAndUpdate(
         _id,
@@ -198,20 +200,21 @@ export const LogoutUser = AsyncHandler(async (req : Request, res : Response) => 
     };
     res.status(200)
         .clearCookie("AccessToken", options)
-        .clearCookie("Refresh Token", options)
+        .clearCookie("RefreshToken", options)
         .json(new ApiResponse(200, "logout success "));
 });
 
 export const GetcurrentUser = AsyncHandler(async(req : Request, res : Response) => {
-    const {user} = req.user
+    const {name , email} = await req.user
 
-    if(!user){
-        throw new ApiError(401, "authentication unvalid ")
-    }
-
+    
+    // if(!user){
+    //     throw new ApiError(401, "authentication unvalid ")
+    // }
+    
     const cuurentUser =  {
-            name : user.name,
-            email : user.email
+            name : name,
+            email : email
         }
     res.status(200).json(
         new ApiResponse(200, "Current user got success", {data : cuurentUser})
@@ -219,9 +222,14 @@ export const GetcurrentUser = AsyncHandler(async(req : Request, res : Response) 
 })
 
 export const CurrentPasswordChange = AsyncHandler(async(req : Request, res : Response) => {
-    const {user} = req.user
+    // const {user} = req.user
     const {oldpassword, newpassword} = req.body
-
+    const {id} = await req.user;
+    
+    const user = await UserM.findById(id)
+    if(!user){
+        throw new ApiError(400, "user not found !")
+    }
 
     const oldpasswordcorrect = await user.ispasswordCorrect(oldpassword)
 
@@ -255,6 +263,8 @@ export const ForgotPassword = AsyncHandler(async(req : Request, res : Response) 
         user.forgotPasswordToken = Hashedtemptoken
         user.forgotPasswordexpiry = TemptokenExpiry
 
+
+    await user.save({validateBeforeSave : false})
     await SendMail({
             email: email,
             name: user?.name,
@@ -274,11 +284,15 @@ export const ForgotPassword = AsyncHandler(async(req : Request, res : Response) 
 export const ResetPassword = AsyncHandler(async(req : Request, res : Response) => {
   const { resetlinktoken } = req.params 
   const {newpassword} = req.body  
+
+  console.log(resetlinktoken, newpassword);
+  
   const resetlinkhashtoken = await crypto
                                         .createHash("sha256")
                                         .update(resetlinktoken!)
                                         .digest("hex")
-
+    console.log(resetlinkhashtoken);
+    
    const user = await UserM.findOneAndUpdate(
     {
         forgotPasswordToken : resetlinkhashtoken,
@@ -289,6 +303,7 @@ export const ResetPassword = AsyncHandler(async(req : Request, res : Response) =
         forgotPasswordToken: undefined,
         forgotPasswordexpiry: undefined
    })    
+   console.log(user);
    
    if(!user){
     throw new ApiError(400, "user not found !")
@@ -299,22 +314,28 @@ export const ResetPassword = AsyncHandler(async(req : Request, res : Response) =
 })
 
 export const EmailUpdate = AsyncHandler(async(req : Request, res : Response) => {
-    const {email, password} = req.user
-
-    if(email != req.user.email){
+    const {oldemail, password} = req.body
+    const {email, _id} = await req.user
+    // console.log(email, oldemail);
+    
+    if(oldemail != email){
         throw new ApiError(400, "Email not matched!")
     }
+    const user = await UserM.findById(_id)
+    if(!user){
+        throw new ApiError(400, "user not found ")
+    }
+    const ispassword = await user.ispasswordCorrect(password)
 
-    const ispassword = await req.user.ispasswordCorrect(password)
     if(!ispassword){
         throw new ApiError(400, "password not matched!")
     }
 
     const emailchangeotp = GenerateOtp()
 
-    req.user.emailotp = emailchangeotp
+    user.emailotp = emailchangeotp
 
-    await req.user.save({validateBefore : false})
+    await user.save({validateBeforeSave : false})
 
     await SendMail(
         {
@@ -328,21 +349,25 @@ export const EmailUpdate = AsyncHandler(async(req : Request, res : Response) => 
             outro: "click on given button ",
         }
     )
-    
+    res.status(200).json(new ApiResponse(200, "check otp on old email "))
 })
 
 export const FinallychangeEmail = AsyncHandler(async(req : Request, res : Response) => {
     const {enteredotp} = req.body
-    const {email} = req.user
+    const {email, _id} = await req.user
+    const user = await UserM.findById(_id)
+    if(!user){
+        throw new ApiError(400, "user not found ")
 
-    if(enteredotp != req.user.emailotp){
+    }
+    if(enteredotp != user.emailotp){
         throw new ApiError(400, "given otp not matched!")
     }
 
     const { newemail } = req.body
-
-    req.user.email = newemail
-
+    user.emailotp = ""
+    user.email = newemail
+    await user.save({validateBeforeSave : false})
     res.status(200).json(
         new ApiResponse(200, "email changed successfully!", {data: req.user})
     )
