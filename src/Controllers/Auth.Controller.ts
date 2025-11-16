@@ -143,7 +143,7 @@ export const VerifyEmail = AsyncHandler(async (req: Request, res: Response) => {
     );
 });
 
-export const LoginUser = AsyncHandler(async (req: Request, res: Response) => {
+export const LoginUser =  AsyncHandler(async (req: Request, res: Response) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
